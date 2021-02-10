@@ -1,8 +1,9 @@
 # Danny's App
 
 ## Steps to run
-1. Download this repository onto your machine
-2. Open terminal in /mode directory (the folder should be one level above the /src folder)
+1. Download this repository onto your machine.  You can either click on the green `Code` button and then click `Download Zip` action.
+Or you can clone the repository directly from your command line with the following command: `git clone https://github.com/DrAmaze/common-pairings.git`.
+2. Open terminal in `/mode` directory (the folder should be one level above the `/src` folder)
 3. run the following command in your terminal, from the /mode location `npm install`. Note that if this fails, you may need to install `node` onto your machine.
 4. Once completed, run this command to generate the application in development mode: `ng serve`
 5. Once compiled, navigate to `http://localhost:4200/` in your browser.
