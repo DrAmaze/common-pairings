@@ -1,5 +1,13 @@
-import { Component } from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import * as XLSX from 'xlsx';
+import {MatTableDataSource} from "@angular/material/table";
+import {MatSort} from "@angular/material/sort";
+
+interface TableData {
+  count: number;
+  pairing: string;
+}
+
 
 @Component({
   selector: 'app-root',
@@ -7,19 +15,27 @@ import * as XLSX from 'xlsx';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'mode';
+  title = 'Common Pairings Finder';
   arrayBuffer: any;
   fileList: any[] = [];
 
   // Used to determine which column index in the excel spreadsheet we care about
-  col1 = 0;
-  col2 = 1;
+  col1 = 2;
+  col2 = 6;
 
   // Associated Header names for the columns indexed above
   header1 = '';
   header2 = '';
 
   mode = '';
+  haveFoundCommonPairings = false;
+
+  MINIMUM_COUNT = 3;
+
+  // Used for creating table
+  displayedColumns: string[] = ['pairing', 'count'];
+  dataSource: MatTableDataSource<any> = new MatTableDataSource<any>();
+  @ViewChild(MatSort, { static: true }) sort: MatSort = new MatSort();
 
   constructor() {
   }
@@ -47,6 +63,7 @@ export class AppComponent {
   }
 
   findMode(data: any): void {
+    this.haveFoundCommonPairings = false;
     const combos: string[] = [];
     let startIdx = 0;
     let endIdx = 1;
@@ -80,7 +97,7 @@ export class AppComponent {
 
     // Count each occurrence
     const counts: any = {};
-    combos.forEach(combo => {
+    combos.forEach((combo, i) => {
       // Add to counter
       if (!counts[combo]) {
         counts[combo] = 1;
@@ -89,7 +106,9 @@ export class AppComponent {
       }
 
       // Store highest and second-highest occurrences
-      if (counts[combo] >= maxCount) {
+      if (combo === maxOrder) {
+        maxCount = counts[combo];
+      } else if (counts[combo] >= maxCount) {
         secondMaxCount = maxCount;
         secondMaxOrder = maxOrder;
         maxCount = counts[combo];
@@ -100,9 +119,30 @@ export class AppComponent {
       }
     });
 
-    console.log('COUNTS: ', counts);
-
     this.mode = `HIGHEST: ${ maxOrder } occurred ${ maxCount } times. SECOND HIGHEST: ${ secondMaxOrder } occurred ${ secondMaxCount } times.`;
+    this.haveFoundCommonPairings = true;
+    this.buildTable(counts);
+  }
+
+  buildTable(counts: any): void {
+    const tableData: TableData[] = [];
+    Object.keys(counts).forEach(key => {
+      if (counts[key] > this.MINIMUM_COUNT) {
+        tableData.push({ pairing: key, count: counts[key] });
+      }
+    });
+    console.log(tableData);
+    const sorted = tableData.sort((a: TableData, b: TableData) => {
+      if (a.count > b.count) {
+        return -1;
+      } else if (a.count < b.count) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+    this.dataSource = new MatTableDataSource<TableData>(sorted);
+    this.dataSource.sort = this.sort;
   }
 
   setHeaderNames(data: any): void {

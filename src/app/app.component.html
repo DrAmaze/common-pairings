@@ -1,4 +1,4 @@
-<h1>Danny's App Fucks</h1>
+<h1>{{ title }}</h1>
 
 <div *ngIf="fileList.length === 0" class="input">
   <label>What is the first column you'd like to compare? (Starting index at first column is 0)
@@ -11,7 +11,23 @@
   </label>
 </div>
 
-<h4 *ngIf="!mode && col1 !== col2">PUT A FILE IN THE THINGY</h4>
+<h4 *ngIf="!haveFoundCommonPairings && col1 !== col2">PUT A FILE IN THE THINGY</h4>
 <input *ngIf="col1 !== undefined && col2 !== undefined" type="file" (change)="findModeFromXlsxFile($event)"/>
 
-<h4 *ngIf="mode">{{ mode }}</h4>
+<div>
+  <mat-table matSort [dataSource]="dataSource">
+    <ng-container matColumnDef="pairing">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Pairings</mat-header-cell>
+      <mat-cell *matCellDef="let row">{{ row.pairing }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="count">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Count</mat-header-cell>
+      <mat-cell *matCellDef="let row">{{ row.count }}</mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+  </mat-table>
+</div>
